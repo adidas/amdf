@@ -1,0 +1,897 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+Copyright 2018 adidas AG
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<xs:schema version="1.0.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:attribute name="versionAMDF" type="xs:string" fixed="2.0">
+        <xs:annotation>
+            <xs:documentation>The version of the AMDF schema this material has been created for.
+This can be used for updating old material definitions to the current schema.</xs:documentation>
+        </xs:annotation>
+    </xs:attribute>
+    <xs:element name="material">
+        <xs:annotation>
+            <xs:documentation>Root element for a material.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="metaData" type="materialMetaDataType"/>
+                <xs:element name="textureList" type="textureListType">
+                    <xs:key name="materialTextureDefKey">
+                        <xs:selector xpath="textureDef"/>
+                        <xs:field xpath="@id"/>
+                    </xs:key>
+                </xs:element>
+                <xs:element name="data" type="materialDataType">
+                    <xs:key name="subMaterialKey">
+                        <xs:selector xpath="subMaterial"/>
+                        <xs:field xpath="@subMaterialId"/>
+                    </xs:key>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute ref="versionAMDF" use="required"/>
+        </xs:complexType>
+        <xs:keyref name="materialComplexMapRef" refer="materialTextureDefKey">
+            <xs:selector xpath="data/subMaterial/*/materialLayer/*/map"/>
+            <xs:field xpath="@textureRef"/>
+        </xs:keyref>
+        <xs:keyref name="materialSimpleMapRef" refer="materialTextureDefKey">
+            <xs:selector xpath="data/subMaterial/*/materialLayer/*"/>
+            <xs:field xpath="@textureRef"/>
+        </xs:keyref>
+    </xs:element>
+    <xs:complexType name="materialMetaDataType">
+        <xs:annotation>
+            <xs:documentation>Stores meta information to the material.</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="metaDataType">
+                <xs:attribute name="thickness" default="0.0">
+                    <xs:annotation>
+                        <xs:documentation>Thickness of the physical material [mm].</xs:documentation>
+                    </xs:annotation>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:float">
+                            <xs:minInclusive value="0.0"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute ref="previewImg"/>
+                <xs:attribute name="referenceImg" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>Specifies a reference photo of the real material sample. The path must be relative to the AMDF file.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="materialDataType">
+        <xs:annotation>
+            <xs:documentation>Specifies the data of the material. Here one or more sub materials are stored.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="unbounded" name="subMaterial"
+                type="subMaterialType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="subMaterialType">
+        <xs:annotation>
+            <xs:documentation>Specifies one material segment.
+This allows for the definition of multiple sub materials with arbitrarily different properties - but assigned to the same id (and thus are required to be contained in a single AMDF).</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="1" name="front" type="materialLayerSetType">
+                <xs:annotation>
+                    <xs:documentation>Specifies the front view of the sub material.</xs:documentation>
+                </xs:annotation>
+                <xs:key name="frontMaterialLayerKey">
+                    <xs:selector xpath="materialLayer"/>
+                    <xs:field xpath="@layerId"/>
+                </xs:key>
+                <xs:key name="frontMaterialLayerOrder">
+                    <xs:selector xpath="materialLayer"/>
+                    <xs:field xpath="@order"/>
+                </xs:key>
+                <xs:keyref name="frontMaterialLayerLinkIdRef" refer="frontMaterialLayerKey">
+                    <xs:selector xpath="materialLayer"/>
+                    <xs:field xpath="@layerLinkId"/>
+                </xs:keyref>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="back" type="materialLayerSetType">
+                <xs:annotation>
+                    <xs:documentation>Specifies the back view of the sub material.</xs:documentation>
+                </xs:annotation>
+                <xs:key name="backMaterialLayerKey">
+                    <xs:selector xpath="materialLayer"/>
+                    <xs:field xpath="@layerId"/>
+                </xs:key>
+                <xs:key name="backMaterialLayerOrder">
+                    <xs:selector xpath="materialLayer"/>
+                    <xs:field xpath="@order"/>
+                </xs:key>
+                <xs:keyref name="backMaterialLayerLinkIdRef" refer="backMaterialLayerKey">
+                    <xs:selector xpath="materialLayer"/>
+                    <xs:field xpath="@layerLinkId"/>
+                </xs:keyref>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="side" type="materialLayerSetType">
+                <xs:annotation>
+                    <xs:documentation>Specifies the side view of the sub material.</xs:documentation>
+                </xs:annotation>
+                <xs:key name="sideMaterialLayerKey">
+                    <xs:selector xpath="materialLayer"/>
+                    <xs:field xpath="@layerId"/>
+                </xs:key>
+                <xs:key name="sideMaterialLayerOrder">
+                    <xs:selector xpath="materialLayer"/>
+                    <xs:field xpath="@order"/>
+                </xs:key>
+                <xs:keyref name="sideMaterialLayerLinkIdRef" refer="sideMaterialLayerKey">
+                    <xs:selector xpath="materialLayer"/>
+                    <xs:field xpath="@layerLinkId"/>
+                </xs:keyref>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute ref="name"/>
+        <xs:attribute use="required" name="subMaterialId" type="xs:unsignedInt">
+            <xs:annotation>
+                <xs:documentation>SubMaterialId specifies the id of every sub-material defined within one material.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="materialLayerSetType">
+        <xs:annotation>
+            <xs:documentation>Specifies a set of layers, that - within one segment - constiture one material face (either 'Front', 'Back' or 'Side').</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="1" name="materialLayer"
+                type="materialLayerType"/>
+        </xs:sequence>
+        <xs:attribute ref="name"/>
+    </xs:complexType>
+    <xs:complexType name="materialLayerType">
+        <xs:annotation>
+            <xs:documentation>Specifies one material shader (Disney BRDF + adidas specific parameters).</xs:documentation>
+        </xs:annotation>
+        <xs:all>
+            <xs:element name="baseColor" type="colorOrMapType" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the surface color, supplied via an RGB value or a texture reference.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="originalColor" type="rgbOrColorRefType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the original color of the material layer.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="targetColor" type="rgbOrColorRefType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the target color for recoloring of this material layer. As a material can later be recolored using a color AMDF, this value is just for temporary usage during the material creation process.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="metallic" type="valueOrMapType" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the metallic-ness via a uniform percentage value (0=dielectric, 1=metallic) or a texture reference. </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="subsurface" type="xs:float" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Controls the amount of subsurface scattering.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="specular" type="valueOrMapType" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the incident specular amount via a uniform percentage value (0=none, 1=maximum) or a texture reference. Specular is a remapping of the IOR of a material.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="specularTint" type="xs:float" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the amount of tint of the specular highlight via a uniform percentage value (0=white, 1=base color).</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="roughness" type="valueOrMapType" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the surface roughness via a uniform percentage value (0=smooth, 1=max roughness) or a texture reference.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="anisotropic" type="xs:float" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the degree of anisotropy which controls the aspect ratio of the specular highlight as a uniform percentage value (0=isotropic, 1=max anisotropic).</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="anisotropicRotation" type="valueOrMapType" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the rotatation angle (in degree) of the highlights via a uniform value or a texture reference (vector map).</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="sheen" type="xs:float" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies an additional grazing diffuse component for approximating the effect of fine fur of cloths using a uniform percentage value.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="sheenTint" type="xs:float" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the amount to tint of the sheen effect as a uniform percentage value (0=white, 1=base color).</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="clearcoat" type="valueOrMapType" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Clearcoat specifies the amount of clearcoat via a uniform percentage value (0=none, 1=max) or a texture reference.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="clearcoatGloss" type="valueOrMapType" maxOccurs="1" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>ClearcoatGloss specifies the clearcoat glossiness via a uniform percentage value (0=satin appearance, 1=gloss appearance) or a texture reference.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="normal" type="normalType">
+                <xs:annotation>
+                    <xs:documentation/>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="displacement" type="displacementType">
+                <xs:annotation>
+                    <xs:documentation/>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="alphaMap" type="mapType" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>References the alpha map of the current material layer via a texture map.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <!--<xs:element maxOccurs="1" minOccurs="0" ref="alphaMap"/>-->
+            <xs:element name="transmission" type="transmissionGroupType" minOccurs="1" maxOccurs="1"
+            />
+        </xs:all>
+        <xs:attribute ref="name"/>
+        <xs:attribute ref="layerId" use="required"/>
+        <xs:attribute name="layerLinkId" type="xs:nonNegativeInteger">
+            <xs:annotation>
+                <xs:documentation>LayerLinkId specifies the membership of a materialLayer in a specific group of multiple materialLayers whose properties are related.
+The default value of 0 means that this layer is not part of any link group.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="order" type="xs:unsignedInt" use="required">
+            <xs:annotation>
+                <xs:documentation>Order establishes the order of a layer. Thus it must be unique in its materlalLayerSet.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="transmissionGroupType">
+        <xs:annotation>
+            <xs:documentation>Specifies the transmission parameters of a material layer.</xs:documentation>
+        </xs:annotation>
+        <xs:all>
+            <xs:element name="transmission" default="0.0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the transmission percentage (0=opaque, 1=fully transmissive)</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:float">
+                        <xs:minInclusive value="0"/>
+                        <xs:maxInclusive value="1"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="refractiveIndex" default="1.5">
+                <xs:annotation>
+                    <xs:documentation>Specifies the index of refraction.</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:float">
+                        <xs:minExclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="transmissionRoughness" type="xs:float" default="0.0" maxOccurs="1"
+                minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the roughness of the transmission (0=none, 1=max roughness)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="transmissionColor" type="rgbOrColorRefType" maxOccurs="1"
+                minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the transmissive color. If this is not set, the base color is used.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+    <xs:element name="emboss">
+        <xs:annotation>
+            <xs:documentation>Root element for an emboss.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="metaData" type="embossMetaDataType"/>
+                <xs:element name="textureList" type="textureListType">
+                    <xs:key name="embossTextureDefKey">
+                        <xs:selector xpath="textureDef"/>
+                        <xs:field xpath="@id"/>
+                    </xs:key>
+                </xs:element>
+                <xs:element name="data" type="embossDataType"/>
+            </xs:sequence>
+            <xs:attribute ref="versionAMDF" use="required"/>
+        </xs:complexType>
+        <xs:keyref name="embossComplexMapRef" refer="embossTextureDefKey">
+            <xs:selector xpath="data/*/map"/>
+            <xs:field xpath="@textureRef"/>
+        </xs:keyref>
+        <xs:keyref name="embossSimpleMapRef" refer="embossTextureDefKey">
+            <xs:selector xpath="data/*"/>
+            <xs:field xpath="@textureRef"/>
+        </xs:keyref>
+    </xs:element>
+    <xs:complexType name="embossMetaDataType">
+        <xs:annotation>
+            <xs:documentation>Stores meta information to the emboss.</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="metaDataType">
+                <xs:attribute ref="previewImg"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="embossDataType">
+        <xs:annotation>
+            <xs:documentation>Specifies the data of the emboss.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="0" name="specular" type="valueOrMapType">
+                <xs:annotation>
+                    <xs:documentation>Specifies the incident specular amount via a uniform percentage value (0=none, 1=maximum) or a texture reference. Specular is a remapping of the IOR of a material. If this value isn't set, the specular value of the material, to which the emboss is applied, is preserved.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="roughness" type="valueOrMapType">
+                <xs:annotation>
+                    <xs:documentation>Specifies the surface roughness via a uniform percentage value (0=smooth, 1=max roughness) or a texture reference. If this value isn't set, the roughness value of the material, to which the emboss is applied, is preserved.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="normal" type="normalType"/>
+            <xs:element maxOccurs="1" minOccurs="0" name="displacement" type="displacementType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="treatment">
+        <xs:annotation>
+            <xs:documentation>Root element for a treatment.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="metaData" type="treatmentMetaDataType"/>
+                <xs:element name="textureList" type="textureListType">
+                    <xs:key name="treatmentTextureDefKey">
+                        <xs:selector xpath="textureDef"/>
+                        <xs:field xpath="@id"/>
+                    </xs:key>
+                </xs:element>
+                <xs:element name="data" type="treatmentDataType"/>
+            </xs:sequence>
+            <xs:attribute ref="versionAMDF" use="required"/>
+        </xs:complexType>
+        <xs:keyref name="treatmentComplexMapRef" refer="treatmentTextureDefKey">
+            <xs:selector xpath="data/subMaterial/*/materialLayer/*/map"/>
+            <xs:field xpath="@textureRef"/>
+        </xs:keyref>
+        <xs:keyref name="treatmentSimpleMapRef" refer="treatmentTextureDefKey">
+            <xs:selector xpath="data/subMaterial/*/materialLayer/*"/>
+            <xs:field xpath="@textureRef"/>
+        </xs:keyref>
+    </xs:element>
+    <xs:complexType name="treatmentMetaDataType">
+        <xs:annotation>
+            <xs:documentation>Stores meta information to the treatment.</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="metaDataType">
+                <xs:attribute ref="previewImg"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="treatmentDataType">
+        <xs:annotation>
+            <xs:documentation>Specifies the data of the treatment.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="1" name="clearcoat" type="valueOrMapType">
+                <xs:annotation>
+                    <xs:documentation>Clearcoat specifies the amount of clearcoat via a uniform percentage value (0=none, 1=max) or a texture reference.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="clearcoatGloss" type="valueOrMapType">
+                <xs:annotation>
+                    <xs:documentation>ClearcoatGloss specifies the clearcoat glossiness via a uniform percentage value (0=satin appearance, 1=gloss appearance) or a texture reference.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="normal" type="normalType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="color">
+        <xs:annotation>
+            <xs:documentation>Root element for a color. This type is used to recolor the layers of a material.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="metaData" type="colorMetaDataType"/>
+                <xs:element name="data" type="colorDataType"/>
+            </xs:sequence>
+            <xs:attribute ref="versionAMDF" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="colorMetaDataType">
+        <xs:annotation>
+            <xs:documentation>Stores meta information to the color.</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="metaDataType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType abstract="true" name="colorDataType">
+        <xs:annotation>
+            <xs:documentation>Specifies the data of the color.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="colorValue" type="rgbType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="normalColorType">
+        <xs:annotation>
+            <xs:documentation>Specifies a normal color without any additional information then the color value and the corresponding colorspace.</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="colorDataType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="solarColorType">
+        <xs:annotation>
+            <xs:documentation>Specifies a solar color which reacts to UV light and is thus oversaturated.</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="colorDataType">
+                <xs:sequence>
+                    <xs:element name="colorTweak" type="colorTweakType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="metallicColorType">
+        <xs:annotation>
+            <xs:documentation>Specifies a metallic color.</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="colorDataType">
+                <xs:sequence>
+                    <xs:element maxOccurs="1" minOccurs="1" name="metallic" type="xs:float">
+                        <xs:annotation>
+                            <xs:documentation>Specifies the metallic-ness via a uniform percentage value (0=dielectric, 1=metallic). </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element maxOccurs="1" minOccurs="0" name="roughness" type="xs:float">
+                        <xs:annotation>
+                            <xs:documentation>Specifies the surface roughness via a uniform percentage value (0=smooth, 1=max roughness).</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element maxOccurs="1" minOccurs="0" name="anisotropic" type="xs:float">
+                        <xs:annotation>
+                            <xs:documentation>Specifies the degree of anisotropy which controls the aspect ratio of the specular highlight as a uniform percentage value (0=isotropic, 1=max anisotropic).</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="colorTweakType">
+        <xs:annotation>
+            <xs:documentation>Specifies the tweaking parameters for a color as relative values.</xs:documentation>
+        </xs:annotation>
+        <xs:attribute default="0.0" name="saturation" type="xs:float">
+            <xs:annotation>
+                <xs:documentation>Offset for the saturation of the color value. Default is 0.0 which would keep the saturation as is.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute default="0.0" name="brightness" type="xs:float">
+            <xs:annotation>
+                <xs:documentation>Offset for the brightness of the color value. Default is 0.0 which would keep the brightness as is.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:element name="print">
+        <xs:annotation>
+            <xs:documentation>Root element for a print.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="metaData" type="printMetaDataType"/>
+                <xs:element name="textureList" type="textureListType">
+                    <xs:key name="printTextureDefKey">
+                        <xs:selector xpath="textureDef"/>
+                        <xs:field xpath="@id"/>
+                    </xs:key>
+                </xs:element>
+                <xs:element name="data" type="printDataType">
+                    <xs:key name="printLayerKey">
+                        <xs:selector xpath="printLayer"/>
+                        <xs:field xpath="@layerId"/>
+                    </xs:key>
+                    <xs:key name="printLayerOrder">
+                        <xs:selector xpath="printLayer"/>
+                        <xs:field xpath="@order"/>
+                    </xs:key>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute ref="versionAMDF" use="required"/>
+        </xs:complexType>
+        <xs:keyref name="printComplexMapRef" refer="printTextureDefKey">
+            <xs:selector xpath="data/subMaterial/*/materialLayer/*/map"/>
+            <xs:field xpath="@textureRef"/>
+        </xs:keyref>
+        <xs:keyref name="printSimpleMapRef" refer="printTextureDefKey">
+            <xs:selector xpath="data/subMaterial/*/materialLayer/*"/>
+            <xs:field xpath="@textureRef"/>
+        </xs:keyref>
+    </xs:element>
+    <xs:complexType name="printMetaDataType">
+        <xs:annotation>
+            <xs:documentation>Stores meta information to the print.</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="metaDataType">
+                <xs:attribute ref="previewImg"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="printDataType">
+        <xs:annotation>
+            <xs:documentation>Specifies the data of the print.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="1" name="printPart" type="printPartType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="printPartType">
+        <xs:annotation>
+            <xs:documentation>Specifies a single part of the print. These parts are masked out against each other using the (mandatory) mask map. Only the set values will override the values of the underlying material. All other values will be preserved from the material. </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="baseColor" type="colorOrMapType" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the surface color, supplied via an RGB value or a texture reference.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="originalColor" type="rgbOrColorRefType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the original color of the print part.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="targetColor" type="rgbOrColorRefType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Specifies the target color for recoloring of this material layer. As a material can later be recolored using a color AMDF, this value is just for temporary usage during the material creation process.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="metallic" type="valueOrMapType" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the metallic-ness via a uniform percentage value (0=dielectric, 1=metallic) or a texture reference. </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="specular" type="valueOrMapType" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the incident specular amount via a uniform percentage value (0=none, 1=maximum) or a texture reference. Specular is a remapping of the IOR of a material.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="specularTint" type="xs:float" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the amount of tint of the specular highlight via a uniform percentage value (0=white, 1=base color).</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="roughness" type="valueOrMapType" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the surface roughness via a uniform percentage value (0=smooth, 1=max roughness) or a texture reference.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="anisotropic" type="xs:float" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the degree of anisotropy which controls the aspect ratio of the specular highlight as a uniform percentage value (0=isotropic, 1=max anisotropic).</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="anisotropicRotation" type="valueOrMapType" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the rotatation angle (in degree) of the highlights via a uniform value or a texture reference (vector map).</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="sheen" type="xs:float" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies an additional grazing diffuse component for approximating the effect of fine fur of cloths using a uniform percentage value.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="sheenTint" type="xs:float" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Specifies the amount to tint of the sheen effect as a uniform percentage value (0=white, 1=base color).</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="normal" type="normalType"/>
+            <xs:element maxOccurs="1" minOccurs="0" name="displacement" type="displacementType">
+                <xs:annotation>
+                    <xs:documentation/>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="alphaMap" type="mapType" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>References the alpha map of the current print part via a texture map.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="maskMap" type="textureRefType">
+                <xs:annotation>
+                    <xs:documentation>References the mask map of the current material layer via a texture map. This masks out different parts against each other.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute ref="name"/>
+        <xs:attribute ref="layerId" use="required"/>
+        <xs:attribute name="order" type="xs:nonNegativeInteger" use="required">
+            <xs:annotation>
+                <xs:documentation>Order establishes the order of a layer. Thus it must be unique in its materlalLayerSet.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType abstract="true" name="metaDataType">
+        <xs:annotation>
+            <xs:documentation>Base type for the meta data types of the different root elements.</xs:documentation>
+        </xs:annotation>
+        <xs:attributeGroup ref="commonMetaData"/>
+    </xs:complexType>
+    <xs:complexType name="normalType">
+        <xs:annotation>
+            <xs:documentation>Stores the reference to a normal map texture and its associated height.</xs:documentation>
+        </xs:annotation>
+        <xs:attributeGroup ref="textureRefGroup"/>
+        <xs:attribute name="strength" default="1.0">
+            <xs:annotation>
+                <xs:documentation>Specifies the strength of the normal map.</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:float">
+                    <xs:minInclusive value="0.0"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="displacementType">
+        <xs:annotation>
+            <xs:documentation>Stores the reference to a displacement map texture and its associated height and height offset.</xs:documentation>
+        </xs:annotation>
+        <xs:attributeGroup ref="textureRefGroup"/>
+        <xs:attribute name="height" use="required">
+            <xs:annotation>
+                <xs:documentation>Specifies the maximum displacement height [mm].</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:float">
+                    <xs:minInclusive value="0.0"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="offset" type="xs:float" default="0.0">
+            <xs:annotation>
+                <xs:documentation>Specifies the offset of the displacement map [mm].</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="textureListType">
+        <xs:annotation>
+            <xs:documentation>A list of textures that are used within this AMDF.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="textureDef" type="textureDefType"
+            />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="textureDefType">
+        <xs:annotation>
+            <xs:documentation>Specifies a single texture.</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>Specifies the (global) texture ID.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute ref="name"/>
+        <xs:attribute use="required" name="file" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Specifies the path to the location of a resource in the file system. The path must be relative to the AMDF file.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="colorOrMapType">
+        <xs:annotation>
+            <xs:documentation>Choice between an RGB color or a texture reference.</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="color" type="rgbOrColorRefType"/>
+            <xs:element name="map" type="mapType"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="valueOrMapType">
+        <xs:annotation>
+            <xs:documentation>Choice between a number value and a texture reference.</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="val" type="xs:float">
+                <xs:annotation>
+                    <xs:documentation>Stores a single number value.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="1" name="map" type="mapType"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="mapType">
+        <xs:annotation>
+            <xs:documentation>Represents a single texture map.</xs:documentation>
+        </xs:annotation>
+        <xs:attributeGroup ref="textureRefGroup"/>
+        <xs:attribute default="0.0" name="brightness" type="xs:float">
+            <xs:annotation>
+                <xs:documentation>Specifies a number value which can be used in conjunction with a texture map. It is part of a texture sample function to remap the texture values. Default value is 0.0.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute default="0.0" name="contrast" type="xs:float">
+            <xs:annotation>
+                <xs:documentation>Specifies a number value which can be used in conjunction with a texture map. It is part of a texture sample function to remap the texture values. Default value is 0.0.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="textureRefType">
+        <xs:annotation>
+            <xs:documentation>Represents a single texture reference.</xs:documentation>
+        </xs:annotation>
+        <xs:attributeGroup ref="textureRefGroup"/>
+    </xs:complexType>
+    <xs:complexType name="rgbOrColorRefType">
+        <xs:annotation>
+            <xs:documentation>Choice between an RGB value and a reference to a color AMDF.</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="color" type="rgbType"/>
+            <xs:element name="colorRef" type="colorRefType"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="rgbType">
+        <xs:annotation>
+            <xs:documentation>Represents a single RGB color together with its colorspace.</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="r" use="required">
+            <xs:annotation>
+                <xs:documentation>R is the value for red channel [0..1]</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:float">
+                    <xs:minInclusive value="0.0"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="g" use="required">
+            <xs:annotation>
+                <xs:documentation>G is the value for green channel [0..1]</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:float">
+                    <xs:minInclusive value="0.0"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="b" use="required">
+            <xs:annotation>
+                <xs:documentation>B is the value for blue channel [0..1]</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:float">
+                    <xs:minInclusive value="0.0"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute use="required" name="colorSpace" type="colorSpaceType">
+            <xs:annotation>
+                <xs:documentation>Specifies the color space for the associated RGB color values.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="colorRefType">
+        <xs:annotation>
+            <xs:documentation>References a color AMDF file by its ID.</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="colorID" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:simpleType name="colorSpaceType">
+        <xs:annotation>
+            <xs:documentation>Defines a string-based type for colorspaces which can have one of the following values: sRGB, AdobeRGB, linear.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="linear"/>
+            <xs:enumeration value="AdobeRGB"/>
+            <xs:enumeration value="sRGB"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="colorInterpretationType">
+        <xs:annotation>
+            <xs:documentation>Defines whether the color values of a texture are taken as is (NoneColorData) or if they should be interpreted with its stored color space (ColorData).</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ColorData"/>
+            <xs:enumeration value="NoneColorData"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:attributeGroup name="commonMetaData">
+        <xs:annotation>
+            <xs:documentation>Meta data which is common for all the types of AMDF.</xs:documentation>
+        </xs:annotation>
+        <xs:attribute ref="name" use="optional"/>
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>Specifies the unique ID of the AMDF.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="version" use="required">
+            <xs:annotation>
+                <xs:documentation>Specifies the version of the material. It is a non-negative integer which should set to 1 for the initial version, and needs to be increased by 1 on the occasion of each modification.</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:unsignedInt">
+                    <xs:minInclusive value="1"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="creationDate" type="xs:date" use="required">
+            <xs:annotation>
+                <xs:documentation>Defines the date of the initial material creation (=version 1).</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="modificationDate" type="xs:date">
+            <xs:annotation>
+                <xs:documentation>Defines the date of the last modification. For the first version, the modification date should be same as the creationDate.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="textureRefGroup">
+        <xs:annotation>
+            <xs:documentation>Specifies a reference of a texture together with the color interpretation.</xs:documentation>
+        </xs:annotation>
+        <xs:attribute use="required" name="textureRef" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>References a texture from the texture list. The connection is done via the ID of the texture.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute use="required" name="colorInterpretation" type="colorInterpretationType">
+            <xs:annotation>
+                <xs:documentation>Specifies whether the color values of a texture are taken as is (None-Color Data) or if they should be interpreted with its stored color space (Color Data).</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:attributeGroup>
+    <xs:attribute name="name" type="xs:string">
+        <xs:annotation>
+            <xs:documentation>Specifies a user-friendly name for this element. This should contribute to a better human understanding.</xs:documentation>
+        </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="previewImg" type="xs:string">
+        <xs:annotation>
+            <xs:documentation>Specifies an image file which serves as a preview for the AMDF. The path must be relative to the AMDF file.</xs:documentation>
+        </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="layerId" type="xs:unsignedInt">
+        <xs:annotation>
+            <xs:documentation>Specifies the ID of the corresponding layer.</xs:documentation>
+        </xs:annotation>
+    </xs:attribute>
+</xs:schema>
