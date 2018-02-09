@@ -1,19 +1,16 @@
-<<<<<<< HEAD
-# amdf-documentation
-Advanced Material Data Format Documentation
-=======
 # Advanced Material Data Format
+
 *Version: 2.0*
 
 ## Content
 
 1. [Description](#description)
-2. [Material Types](#material-types)
-3. [Color Spaces](#color-spaces)
-4. [Texture Color Interpretation](#texture-color-interpretation)
-5. [Parameter Functions](#parameter-functions)
-6. [License](#license)
-7. [References](#references)
+1. [Material Types](#material-types)
+1. [Color Spaces](#color-spaces)
+1. [Texture Color Interpretation](#texture-color-interpretation)
+1. [Parameter Functions](#parameter-functions)
+1. [License](#license)
+1. [References](#references)
 
 ## Description
 
@@ -279,9 +276,9 @@ hsvColor desatColor(
     float s_d = 1.0 - pow(1.0 - s_t, 5.0);
 
     hsvColor c_d;
-	c_d.h = recoloredTexture.h;
-	c_d.s = s_d * recoloredTexture.s;
-	c_d.v = recoloredTexture.v;
+    c_d.h = recoloredTexture.h;
+    c_d.s = s_d * recoloredTexture.s;
+    c_d.v = recoloredTexture.v;
 
     return c_d;
 }
@@ -336,8 +333,6 @@ Copyright © 2018, adidas AG, Released under the [Apache 2.0 License](LICENSE)
 ## References
 
 1. Physically-Based Shading at Disney, Brent Burley, Walt Disney Animation Studios, Aug 31, 2012, https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
-2. Extending the Disney BRDF to a BSDF with Integrated Subsurface Scattering, Brent Burley, Walt Disney Animation Studios, 2015, http://blog.selfshadow.com/publications/s2015-shading-course/burley/s2015_pbs_disney_bsdf_notes.pdf
-3. Blending in Detail, Colin Barré-Brisebois and Stephen Hill, Jul 10, 2012, http://blog.selfshadow.com/publications/blending-in-detail/
-4. Chapter 4. Point operations, Brightness + Contrast, GIMP, http://pippin.gimp.org/image_processing/chap_point.html
-
->>>>>>> 6570394... Added AMDF 2.0 schema and documentation
+1. Extending the Disney BRDF to a BSDF with Integrated Subsurface Scattering, Brent Burley, Walt Disney Animation Studios, 2015, http://blog.selfshadow.com/publications/s2015-shading-course/burley/s2015_pbs_disney_bsdf_notes.pdf
+1. Blending in Detail, Colin Barré-Brisebois and Stephen Hill, Jul 10, 2012, http://blog.selfshadow.com/publications/blending-in-detail/
+1. Chapter 4. Point operations, Brightness + Contrast, GIMP, http://pippin.gimp.org/image_processing/chap_point.html
