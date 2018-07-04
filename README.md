@@ -330,6 +330,30 @@ float remapTextureValue(
 
 Copyright © 2018, adidas AG, Released under the [Apache 2.0 License](LICENSE)
 
+## Use Cases
+
+This software can be used to define the visual appearence of virtual materials.
+It is independent from a specific 3D rendering software. The only restriction is,
+that the application has to implement the Disney BRDF standard as described above,
+to get comparable results. 
+
+adidas is not responsible for the usage of this software for different purposes
+than the ones described in this section.
+
+## Terms and conditions
+ 
+adidas publishes this open source software with the aim of helping the community
+with our tools and libraries which will be also useful for other people.
+ 
+It means that the published code is working and adidas wants you to work with it,
+however, adidas is not responsible for any issue which could happen using this
+software in a production environment. So, be careful using this code in a risky
+environment, such as medical or autonomous car applications.
+
+If you want to contact adidas regarding this, you can mail us at _software.engineering@adidas.com_.
+ 
+For further information open the [adidas terms and conditions](https://github.com/adidas/adidas-contribution-guidelines/wiki/Terms-and-conditions) page.
+
 ## References
 
 1. Physically-Based Shading at Disney, Brent Burley, Walt Disney Animation Studios, Aug 31, 2012, https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
