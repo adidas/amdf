@@ -5,11 +5,13 @@
 ## Content
 
 1. [Description](#description)
+1. [Use Case](#use-case)
 1. [Material Types](#material-types)
 1. [Color Spaces](#color-spaces)
 1. [Texture Color Interpretation](#texture-color-interpretation)
 1. [Parameter Functions](#parameter-functions)
 1. [License](#license)
+1. [Terms and conditions](#terms-and-conditions)
 1. [References](#references)
 
 ## Description
@@ -31,6 +33,16 @@ To define the structure of the AMDF we use an XML Schema Definition
 file. The exact structure can be seen in the corresponding XML schema
 documentation. The base of an AMDF is one of five material types which
 will be described in the following.
+
+## Use Case
+
+This XML schema is used to define the visual appearence of virtual materials.
+It is independent from a specific 3D rendering software. The only restriction is,
+that the application has to implement the Disney BRDF standard as described above,
+to get comparable results. 
+
+adidas is not responsible for the usage of this schema for different purposes
+than the one described in this section.
 
 ## Material Types
 
@@ -329,6 +341,20 @@ float remapTextureValue(
 ## License
 
 Copyright © 2018, adidas AG, Released under the [Apache 2.0 License](LICENSE)
+
+## Terms and conditions
+ 
+adidas publishes this open source software with the aim of helping the community
+with our tools and libraries which will be also useful for other people.
+ 
+It means that the published code is working and adidas wants you to work with it,
+however, adidas is not responsible for any issue which could happen using this
+software in a production environment. So, be careful using this code in a risky
+environment, such as medical or autonomous car applications.
+
+If you want to contact adidas regarding this, you can mail us at _software.engineering@adidas.com_.
+ 
+For further information open the [adidas terms and conditions](https://github.com/adidas/adidas-contribution-guidelines/wiki/Terms-and-conditions) page.
 
 ## References
 
