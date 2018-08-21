@@ -17,7 +17,7 @@ limitations under the License.
 -->
 
 <xs:schema version="1.0.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:attribute name="versionAMDF" type="xs:string" fixed="2.0">
+    <xs:attribute name="versionAMDF" type="xs:string" fixed="2.1">
         <xs:annotation>
             <xs:documentation>The version of the AMDF schema this material has been created for.
 This can be used for updating old material definitions to the current schema.</xs:documentation>
@@ -93,7 +93,7 @@ This can be used for updating old material definitions to the current schema.</x
             <xs:documentation>Specifies one material segment.
 This allows for the definition of multiple sub materials with arbitrarily different properties - but assigned to the same id (and thus are required to be contained in a single AMDF).</xs:documentation>
         </xs:annotation>
-        <xs:sequence>
+        <xs:all>
             <xs:element maxOccurs="1" minOccurs="1" name="front" type="materialLayerSetType">
                 <xs:annotation>
                     <xs:documentation>Specifies the front view of the sub material.</xs:documentation>
@@ -145,7 +145,7 @@ This allows for the definition of multiple sub materials with arbitrarily differ
                     <xs:field xpath="@layerLinkId"/>
                 </xs:keyref>
             </xs:element>
-        </xs:sequence>
+        </xs:all>
         <xs:attribute ref="name"/>
         <xs:attribute use="required" name="subMaterialId" type="xs:unsignedInt">
             <xs:annotation>
@@ -233,9 +233,9 @@ This allows for the definition of multiple sub materials with arbitrarily differ
                     <xs:documentation>Clearcoat specifies the amount of clearcoat via a uniform percentage value (0=none, 1=max) or a texture reference.</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="clearcoatGloss" type="valueOrMapType" maxOccurs="1" minOccurs="1">
+            <xs:element name="clearcoatRoughness" type="valueOrMapType" maxOccurs="1" minOccurs="1">
                 <xs:annotation>
-                    <xs:documentation>ClearcoatGloss specifies the clearcoat glossiness via a uniform percentage value (0=satin appearance, 1=gloss appearance) or a texture reference.</xs:documentation>
+                    <xs:documentation>ClearcoatRoughness specifies the roughness of the clearcoat via a uniform percentage value (0=glossy appearance, 1=satin appearance) or a texture reference.</xs:documentation>
                 </xs:annotation>
             </xs:element>
             <xs:element maxOccurs="1" minOccurs="0" name="normal" type="normalType">
@@ -262,7 +262,7 @@ This allows for the definition of multiple sub materials with arbitrarily differ
         <xs:attribute name="layerLinkId" type="xs:nonNegativeInteger">
             <xs:annotation>
                 <xs:documentation>LayerLinkId specifies the membership of a materialLayer in a specific group of multiple materialLayers whose properties are related.
-The default value of 0 means that this layer is not part of any link group.</xs:documentation>
+The default value of 0 (or if the value is missing) means that this layer is not part of any link group.</xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="order" type="xs:unsignedInt" use="required">
@@ -287,7 +287,7 @@ The default value of 0 means that this layer is not part of any link group.</xs:
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
-            <xs:element name="refractiveIndex" default="1.5">
+            <xs:element name="refractiveIndex" default="1.5" maxOccurs="1" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>Specifies the index of refraction.</xs:documentation>
                 </xs:annotation>
@@ -412,9 +412,9 @@ The default value of 0 means that this layer is not part of any link group.</xs:
                     <xs:documentation>Clearcoat specifies the amount of clearcoat via a uniform percentage value (0=none, 1=max) or a texture reference.</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element maxOccurs="1" minOccurs="1" name="clearcoatGloss" type="valueOrMapType">
+            <xs:element maxOccurs="1" minOccurs="1" name="clearcoatRoughness" type="valueOrMapType">
                 <xs:annotation>
-                    <xs:documentation>ClearcoatGloss specifies the clearcoat glossiness via a uniform percentage value (0=satin appearance, 1=gloss appearance) or a texture reference.</xs:documentation>
+                    <xs:documentation>ClearcoatRoughness specifies the roughness of the clearcoat via a uniform percentage value (0=glossy appearance, 1=satin appearance) or a texture reference.</xs:documentation>
                 </xs:annotation>
             </xs:element>
             <xs:element maxOccurs="1" minOccurs="0" name="normal" type="normalType"/>
@@ -644,6 +644,12 @@ The default value of 0 means that this layer is not part of any link group.</xs:
         <xs:attribute name="order" type="xs:nonNegativeInteger" use="required">
             <xs:annotation>
                 <xs:documentation>Order establishes the order of a layer. Thus it must be unique in its materlalLayerSet.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="layerLinkId" type="xs:nonNegativeInteger">
+            <xs:annotation>
+                <xs:documentation>LayerLinkId specifies the membership of a printPart in a specific group of multiple printParts whose properties are related.
+The default value of 0 (or if the value is missing) means that this layer is not part of any link group.</xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
